@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ForagePlus SARL - Assistant Commercial</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7db9e8 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 450px;
+            height: 650px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #1e5799 0%, #2989d8 50%, #207cca 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.2);
+        }
+
+        .chat-header h1 {
+            font-size: 22px;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .chat-header .tagline {
+            font-size: 12px;
+            opacity: 0.95;
+            font-weight: 500;
+        }
+
+        .promo-banner {
+            background: linear-gradient(90deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f5f8fa;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.bot {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .bot-avatar {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #2989d8 0%, #207cca 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .message.user {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 75%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            word-wrap: break-word;
+            line-height: 1.5;
+        }
+
+        .bot .message-content {
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .user .message-content {
+            background: linear-gradient(135deg, #2989d8 0%, #207cca 100%);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .option-btn {
+            background: white;
+            border: 2px solid #2989d8;
+            color: #2989d8;
+            padding: 12px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .option-btn:hover {
+            background: linear-gradient(135deg, #2989d8 0%, #207cca 100%);
+            color: white;
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(41, 137, 216, 0.3);
+        }
+
+        .promo-card {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 10px 0;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+        }
+
+        .promo-card h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .promo-price {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .old-price {
+            text-decoration: line-through;
+            opacity: 0.8;
+            font-size: 14px;
+        }
+
+        .new-price {
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .savings {
+            background: rgba(255,255,255,0.25);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-top: 8px;
+            display: inline-block;
+        }
+
+        .info-card {
+            background: white;
+            border-left: 4px solid #2989d8;
+            border-radius: 8px;
+            padding: 14px;
+            margin: 10px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .info-card h4 {
+            color: #2989d8;
+            font-size: 15px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .info-card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .info-card li {
+            padding: 4px 0;
+            font-size: 13px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .info-card li:before {
+            content: "✓ ";
+            color: #28a745;
+            font-weight: bold;
+            margin-right: 6px;
+        }
+
+        .process-step {
+            background: #f0f7ff;
+            border-radius: 10px;
+            padding: 12px;
+            margin: 8px 0;
+            border-left: 4px solid #2989d8;
+        }
+
+        .process-step h5 {
+            color: #2989d8;
+            font-size: 14px;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        .process-step p {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .contact-box {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 14px;
+            border-radius: 12px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .contact-box h4 {
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
+
+        .contact-box .phone {
+            font-size: 18px;
+            font-weight: 800;
+            margin: 6px 0;
+            letter-spacing: 1px;
+        }
+
+        .success-box {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            border-radius: 12px;
+            padding: 14px;
+            margin: 10px 0;
+            color: #155724;
+        }
+
+        .success-box h4 {
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .chat-input {
+            padding: 15px;
+            background: white;
+            border-top: 2px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .chat-input input:focus {
+            border-color: #2989d8;
+        }
+
+        .chat-input button {
+            background: linear-gradient(135deg, #2989d8 0%, #207cca 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: transform 0.2s ease;
+        }
+
+        .chat-input button:hover {
+            transform: scale(1.05);
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 12px 16px;
+            background: white;
+            border-radius: 18px;
+            width: fit-content;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: #2989d8;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        .urgent-badge {
+            background: #dc3545;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-block;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1>💧 ForagePlus SARL</h1>
+            <p class="tagline">L'eau potable, c'est maintenant chez ForagePlus</p>
+        </div>
+        <div class="promo-banner">
+            🎉 OFFRE SPÉCIALE jusqu'au 31 mars 2026 - ÉCONOMISEZ 200 000 FCFA !
+        </div>
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-input">
+            <input type="text" id="userInput" placeholder="Posez votre question..." />
+            <button onclick="sendMessage()">Envoyer</button>
+        </div>
+    </div>
+
+    <script>
+        let conversationState = {
+            step: 'welcome',
+            userData: {},
+            awaitingInput: false,
+            inputType: null
+        };
+
+        window.onload = function() {
+            showWelcomeMessage();
+        };
+
+        function showWelcomeMessage() {
+            addBotMessage("Bienvenue chez ForagePlus SARL ! 💧");
+            setTimeout(() => {
+                addBotMessage("Je suis votre assistant commercial et technique. Je peux vous aider avec vos besoins en forage d'eau.");
+                setTimeout(() => {
+                    showPromoOffer();
+                }, 1000);
+            }, 800);
+        }
+
+        function showPromoOffer() {
+            const promoHTML = `
+                <div class="promo-card">
+                    <h3>🎯 OFFRE PROMOTIONNELLE</h3>
+                    <div class="promo-price">
+                        <span class="old-price">1 300 000 FCFA</span>
+                        <span class="new-price">1 100 000 FCFA</span>
+                    </div>
+                    <div class="savings">💰 Économisez 200 000 FCFA</div>
+                    <p style="margin-top: 12px; font-size: 13px;">
+                        ✅ Forage complet (recherche + foration)<br>
+                        ✅ Jusqu'à 80 mètres de profondeur<br>
+                        ✅ Expertise d'ingénieur<br>
+                        ✅ Équipements modernes<br>
+                    </p>
+                    <p style="margin-top: 10px; font-size: 12px; font-weight: 600;">
+                        ⏰ Valable jusqu'au 31 mars 2026
+                    </p>
+                </div>
+            `;
+            
+            addBotMessage(promoHTML);
+            
+            setTimeout(() => {
+                showMainMenu();
+            }, 1200);
+        }
+
+        function showMainMenu() {
+            addBotMessage("Comment puis-je vous aider aujourd'hui ?", [
+                { text: "💰 Demander un devis", action: () => startQuoteRequest() },
+                { text: "⚙️ En savoir plus sur le forage", action: () => showProcess() },
+                { text: "📞 Prendre rendez-vous", action: () => scheduleVisit() },
+                { text: "ℹ️ Informations et contact", action: () => showInfo() }
+            ]);
+            conversationState.step = 'main_menu';
+        }
+
+        function startQuoteRequest() {
+            addUserMessage("Demander un devis");
+            addBotMessage("Excellent choix ! 🎯");
+            
+            setTimeout(() => {
+                addBotMessage(`
+                    <div class="promo-card">
+                        <h3>OFFRE EN COURS</h3>
+                        <div class="promo-price">
+                            <span class="new-price">1 100 000 FCFA</span>
+                            <span class="urgent-badge">-200K</span>
+                        </div>
+                        <p style="margin-top: 10px; font-size: 13px;">
+                            Forage complet jusqu'à 80m<br>
+                            Valable jusqu'au 31/03/2026
+                        </p>
+                    </div>
+                `);
+                
+                setTimeout(() => {
+                    addBotMessage("Pour personnaliser votre devis, j'ai besoin de quelques informations.");
+                    setTimeout(() => {
+                        addBotMessage("Quel est le type de projet ?", [
+                            { text: "🏠 Maison/Résidentiel", action: () => setProjectType('Résidentiel') },
+                            { text: "🌾 Ferme/Agriculture", action: () => setProjectType('Agriculture') },
+                            { text: "🏢 Commercial/Entreprise", action: () => setProjectType('Commercial') },
+                            { text: "🏗️ Autre projet", action: () => setProjectType('Autre') }
+                        ]);
+                        conversationState.step = 'quote_project_type';
+                    }, 800);
+                }, 1000);
+            }, 600);
+        }
+
+        function setProjectType(type) {
+            addUserMessage(type);
+            conversationState.userData.projectType = type;
+            
+            addBotMessage(`Parfait pour un projet ${type} ! 👍`);
+            setTimeout(() => {
+                addBotMessage("Dans quelle localité se trouve votre terrain ?");
+                conversationState.awaitingInput = true;
+                conversationState.inputType = 'location';
+            }, 600);
+        }
+
+        function showProcess() {
+            addUserMessage("En savoir plus sur le forage");
+            addBotMessage("Voici notre processus complet de forage d'eau 💧");
+            
+            setTimeout(() => {
+                const processHTML = `
+                    <div class="process-step">
+                        <h5>🔍 1. RECHERCHE D'EAU</h5>
+                        <p>• Étude géologique du terrain<br>
+                        • Détection des nappes phréatiques<br>
+                        • Identification du meilleur emplacement</p>
+                    </div>
+                    <div class="process-step">
+                        <h5>⚙️ 2. FORATION</h5>
+                        <p>• Forage avec équipements modernes<br>
+                        • Profondeur adaptée (jusqu'à 80m)<br>
+                        • Supervision par ingénieur expert</p>
+                    </div>
+                    <div class="process-step">
+                        <h5>💧 3. INSTALLATION</h5>
+                        <p>• Mise en place des équipements<br>
+                        • Tests de débit et qualité<br>
+                        • Formation à l'utilisation</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>✅ RÉSULTAT GARANTI</h4>
+                        <ul>
+                            <li>Accès fiable à l'eau potable</li>
+                            <li>Ressource durable et abondante</li>
+                            <li>Expertise d'ingénieur</li>
+                            <li>Équipements modernes</li>
+                        </ul>
+                    </div>
+                `;
+                addBotMessage(processHTML);
+                
+                setTimeout(() => {
+                    addBotMessage("Des questions sur une étape en particulier ?", [
+                        { text: "💰 Demander un devis", action: () => startQuoteRequest() },
+                        { text: "📞 Prendre rendez-vous", action: () => scheduleVisit() },
+                        { text: "🔙 Menu principal", action: () => showMainMenu() }
+                    ]);
+                }, 800);
+            }, 600);
+        }
+
+        function scheduleVisit() {
+            addUserMessage("Prendre rendez-vous");
+            addBotMessage("Parfait ! 🎯 Nous organisons des visites techniques gratuites pour évaluer votre terrain.");
+            
+            setTimeout(() => {
+                addBotMessage(`
+                    <div class="contact-box">
+                        <h4>📞 CONTACTEZ-NOUS DIRECTEMENT</h4>
+                        <div class="phone">+226 68 68 68 96</div>
+                        <div class="phone">+226 54 54 54 68</div>
+                        <p style="margin-top: 10px; font-size: 13px;">
+                            Appelez pour fixer un rendez-vous avec notre ingénieur
+                        </p>
+                    </div>
+                `);
+                
+                setTimeout(() => {
+                    addBotMessage("Ou laissez-moi vos coordonnées et nous vous rappellerons rapidement.", [
+                        { text: "✍️ Laisser mes coordonnées", action: () => collectContactInfo() },
+                        { text: "📞 J'appelle directement", action: () => confirmDirectCall() },
+                        { text: "🔙 Menu principal", action: () => showMainMenu() }
+                    ]);
+                }, 800);
+            }, 600);
+        }
+
+        function collectContactInfo() {
+            addUserMessage("Laisser mes coordonnées");
+            addBotMessage("Je vais transmettre votre demande à notre équipe. 📋");
+            
+            setTimeout(() => {
+                addBotMessage("Votre nom complet ?");
+                conversationState.awaitingInput = true;
+                conversationState.inputType = 'contact_name';
+                conversationState.step = 'contact_collection';
+            }, 600);
+        }
+
+        function confirmDirectCall() {
+            addUserMessage("J'appelle directement");
+            addBotMessage(`
+                <div class="contact-box">
+                    <h4>📞 NOS NUMÉROS</h4>
+                    <div class="phone">+226 68 68 68 96</div>
+                    <div class="phone">+226 54 54 54 68</div>
+                    <p style="margin-top: 10px; font-size: 13px;">
+                        Nous sommes disponibles pour vous répondre !
+                    </p>
+                </div>
+            `);
+            
+            setTimeout(() => {
+                addBotMessage("Autre chose ?", [
+                    { text: "💰 Demander un devis", action: () => startQuoteRequest() },
+                    { text: "🔙 Menu principal", action: () => showMainMenu() }
+                ]);
+            }, 800);
+        }
+
+        function showInfo() {
+            addUserMessage("Informations et contact");
+            
+            const infoHTML = `
+                <div class="info-card">
+                    <h4>🏢 FORAGEPLUS SARL</h4>
+                    <ul>
+                        <li>Ouagadougou, Burkina Faso</li>
+                        <li>Forage d'eau potable professionnel</li>
+                        <li>Expertise d'ingénieur</li>
+                        <li>Équipements modernes</li>
+                    </ul>
+                </div>
+                
+                <div class="contact-box">
+                    <h4>📞 CONTACT</h4>
+                    <div class="phone">+226 68 68 68 96</div>
+                    <div class="phone">+226 54 54 54 68</div>
+                </div>
+                
+                <div class="info-card">
+                    <h4>⚙️ NOS SERVICES</h4>
+                    <ul>
+                        <li>Recherche et détection d'eau</li>
+                        <li>Forage jusqu'à 80 mètres</li>
+                        <li>Installation complète</li>
+                        <li>Expertise technique</li>
+                        <li>Résultats durables et abondants</li>
+                    </ul>
+                </div>
+                
+                <div class="promo-card">
+                    <h3>💰 OFFRE ACTUELLE</h3>
+                    <div class="promo-price">
+                        <span class="new-price">1 100 000 FCFA</span>
+                    </div>
+                    <div class="savings">Économie de 200 000 FCFA</div>
+                    <p style="margin-top: 10px; font-size: 12px;">
+                        Valable jusqu'au 31 mars 2026
+                    </p>
+                </div>
+            `;
+            
+            addBotMessage(infoHTML);
+            
+            setTimeout(() => {
+                addBotMessage("Que souhaitez-vous faire ?", [
+                    { text: "💰 Demander un devis", action: () => startQuoteRequest() },
+                    { text: "📞 Prendre rendez-vous", action: () => scheduleVisit() },
+                    { text: "🔙 Menu principal", action: () => showMainMenu() }
+                ]);
+            }, 800);
+        }
+
+        function handleUserInput(input) {
+            const type = conversationState.inputType;
+            
+            if (type === 'location') {
+                handleLocation(input);
+            } else if (type === 'water_needs') {
+                handleWaterNeeds(input);
+            } else if (type === 'contact_name') {
+                handleContactName(input);
+            } else if (type === 'contact_phone') {
+                handleContactPhone(input);
+            } else if (type === 'contact_availability') {
+                handleContactAvailability(input);
+            } else {
+                handleFreeMessage(input);
+            }
+        }
+
+        function handleLocation(input) {
+            addUserMessage(input);
+            conversationState.userData.location = input;
+            
+            addBotMessage(`Très bien, ${input}. 📍`);
+            setTimeout(() => {
+                addBotMessage("Quels sont vos besoins quotidiens en eau ? (usage domestique, agriculture, etc.)");
+                conversationState.inputType = 'water_needs';
+            }, 600);
+        }
+
+        function handleWaterNeeds(input) {
+            addUserMessage(input);
+            conversationState.userData.waterNeeds = input;
+            conversationState.awaitingInput = false;
+            
+            showTypingIndicator();
+            setTimeout(() => {
+                removeTypingIndicator();
+                
+                const summary = `
+                    <div class="success-box">
+                        <h4>✅ RÉCAPITULATIF DE VOTRE DEMANDE</h4>
+                        <p><strong>Type de projet :</strong> ${conversationState.userData.projectType}</p>
+                        <p><strong>Localisation :</strong> ${conversationState.userData.location}</p>
+                        <p><strong>Besoins :</strong> ${conversationState.userData.waterNeeds}</p>
+                    </div>
+                    
+                    <div class="promo-card">
+                        <h3>💰 VOTRE DEVIS</h3>
+                        <div class="promo-price">
+                            <span class="old-price">1 300 000 FCFA</span>
+                            <span class="new-price">1 100 000 FCFA</span>
+                        </div>
+                        <div class="savings">💰 Vous économisez 200 000 FCFA !</div>
+                        <p style="margin-top: 12px; font-size: 13px;">
+                            ✅ Recherche + Foration complète (jusqu'à 80m)<br>
+                            ✅ Expertise d'ingénieur<br>
+                            ✅ Équipements modernes<br>
+                            ✅ Installation et tests<br>
+                        </p>
+                        <p style="margin-top: 10px; font-size: 12px; font-weight: 600;">
+                            ⏰ Offre valable jusqu'au 31 mars 2026
+                        </p>
+                    </div>
+                `;
+                
+                addBotMessage(summary);
+                
+                setTimeout(() => {
+                    addBotMessage(`
+                        <div class="contact-box">
+                            <h4>📞 PROCHAINE ÉTAPE</h4>
+                            <p style="font-size: 14px; margin-bottom: 10px;">
+                                Contactez-nous pour une visite technique gratuite et finaliser votre projet
+                            </p>
+                            <div class="phone">+226 68 68 68 96</div>
+                            <div class="phone">+226 54 54 54 68</div>
+                        </div>
+                    `);
+                    
+                    setTimeout(() => {
+                        addBotMessage("Votre demande de devis a été enregistrée. Notre équipe vous contactera rapidement ! 🎉", [
+                            { text: "📞 Appeler maintenant", action: () => confirmDirectCall() },
+                            { text: "🔙 Menu principal", action: () => showMainMenu() }
+                        ]);
+                    }, 1000);
+                }, 1000);
+            }, 1500);
+        }
+
+        function handleContactName(input) {
+            addUserMessage(input);
+            conversationState.userData.name = input;
+            
+            addBotMessage(`Enchanté, ${input} ! 👋`);
+            setTimeout(() => {
+                addBotMessage("Votre numéro de téléphone ?");
+                conversationState.inputType = 'contact_phone';
+            }, 600);
+        }
+
+        function handleContactPhone(input) {
+            addUserMessage(input);
+            conversationState.userData.phone = input;
+            
+            addBotMessage("Parfait ! 📱");
+            setTimeout(() => {
+                addBotMessage("Quelles sont vos disponibilités pour la visite technique ? (jours et horaires préférés)");
+                conversationState.inputType = 'contact_availability';
+            }, 600);
+        }
+
+        function handleContactAvailability(input) {
+            addUserMessage(input);
+            conversationState.userData.availability = input;
+            conversationState.awaitingInput = false;
+            
+            showTypingIndicator();
+            setTimeout(() => {
+                removeTypingIndicator();
+                
+                const summary = `
+                    <div class="success-box">
+                        <h4>✅ DEMANDE DE RENDEZ-VOUS ENREGISTRÉE</h4>
+                        <p><strong>Nom :</strong> ${conversationState.userData.name}</p>
+                        <p><strong>Téléphone :</strong> ${conversationState.userData.phone}</p>
+                        <p><strong>Disponibilités :</strong> ${conversationState.userData.availability}</p>
+                    </div>
+                `;
+                
+                addBotMessage(summary);
+                
+                setTimeout(() => {
+                    addBotMessage("📧 Votre demande a été transmise à notre équipe. Nous vous contacterons dans les plus brefs délais pour confirmer le rendez-vous ! 🎯");
+                    
+                    setTimeout(() => {
+                        addBotMessage("Autre chose ?", [
+                            { text: "💰 Demander un devis", action: () => startQuoteRequest() },
+                            { text: "🔙 Menu principal", action: () => showMainMenu() }
+                        ]);
+                    }, 1000);
+                }, 800);
+            }, 1500);
+        }
+
+        function handleFreeMessage(input) {
+            addUserMessage(input);
+            
+            const inputLower = input.toLowerCase();
+            
+            showTypingIndicator();
+            setTimeout(() => {
+                removeTypingIndicator();
+                
+                if (inputLower.includes('prix') || inputLower.includes('cout') || inputLower.includes('tarif')) {
+                    showPromoOffer();
+                    setTimeout(() => {
+                        addBotMessage("Souhaitez-vous un devis personnalisé ?", [
+                            { text: "✅ Oui, demander un devis", action: () => startQuoteRequest() },
+                            { text: "🔙 Menu principal", action: () => showMainMenu() }
+                        ]);
+                    }, 1000);
+                } else if (inputLower.includes('contact') || inputLower.includes('appel') || inputLower.includes('telephone')) {
+                    addBotMessage(`
+                        <div class="contact-box">
+                            <h4>📞 CONTACTEZ-NOUS</h4>
+                            <div class="phone">+226 68 68 68 96</div>
+                            <div class="phone">+226 54 54 54 68</div>
+                        </div>
+                    `);
+                    setTimeout(() => {
+                        showMainMenu();
+                    }, 800);
+                } else {
+                    addBotMessage("Je peux vous aider avec :");
+                    setTimeout(() => {
+                        showMainMenu();
+                    }, 600);
+                }
+            }, 1000);
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            
+            if (message === '') return;
+            
+            if (conversationState.awaitingInput) {
+                handleUserInput(message);
+            } else {
+                handleFreeMessage(message);
+            }
+            
+            input.value = '';
+        }
+
+        function addBotMessage(content, options = []) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message bot';
+            
+            let optionsHTML = '';
+            if (options.length > 0) {
+                optionsHTML = '<div class="options">';
+                options.forEach(option => {
+                    const btnId = 'btn_' + Date.now() + Math.random();
+                    optionsHTML += `<button class="option-btn" id="${btnId}">${option.text}</button>`;
+                });
+                optionsHTML += '</div>';
+            }
+            
+            messageDiv.innerHTML = `
+                <div class="bot-avatar">💧</div>
+                <div class="message-content">
+                    ${content}
+                    ${optionsHTML}
+                </div>
+            `;
+            
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            
+            if (options.length > 0) {
+                options.forEach((option, index) => {
+                    const btn = messageDiv.querySelectorAll('.option-btn')[index];
+                    if (btn) {
+                        btn.addEventListener('click', option.action);
+                    }
+                });
+            }
+        }
+
+        function addUserMessage(content) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message user';
+            messageDiv.innerHTML = `<div class="message-content">${content}</div>`;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const messagesDiv = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `
+                <div class="bot-avatar">💧</div>
+                <div class="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            `;
+            messagesDiv.appendChild(typingDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+
+        document.getElementById('userInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
